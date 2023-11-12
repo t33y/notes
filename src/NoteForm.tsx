@@ -50,14 +50,40 @@ const NoteForm = ({ onSubmit, onAddTag, tags, noteToEdit }: NoteFormProps) => {
   };
 
   return (
-    <div className="p-10 border-t-blue-500 border-t-[1px] flex-wrap flex w-full flex-col content-center">
+    <div className="sm:p-10 flex-wrap flex w-full flex-col content-center">
       <form className=" w-full " onSubmit={handleSubmit}>
+        <div className="flex pb-3 justify-start justify-cente gap-2">
+          <Button
+            className="hover:scale-105 transition-all"
+            type="submit"
+            variant="contained"
+            color="primary"
+          >
+            Save
+          </Button>
+          <Link to={".."} relative="path">
+            <Button
+              className="hover:scale-105 transition-all"
+              color="warning"
+              variant="outlined"
+              type="submit"
+            >
+              Cancel
+            </Button>
+          </Link>
+        </div>
         <div className=" pb-3 flex flex-col gap-2 justify-between sm:flex-row">
           <div className="flex flex-grow items-start gap-2 flex-col">
-            <label htmlFor="title">Title</label>
+            <label
+              className="font-LilitaOne text-lg  text-gray-700 dark:text-gray-50 rou "
+              htmlFor="title"
+            >
+              Title
+            </label>
             <TextField
               inputProps={{
-                className: "dark:!text-gray-700 dark:!bg-gray-50 !font-serif",
+                className:
+                  "dark:!text-gray-700 !rounded-t-lg dark:!bg-gray-50 !font-Poppings",
               }}
               hiddenLabel
               fullWidth
@@ -71,10 +97,17 @@ const NoteForm = ({ onSubmit, onAddTag, tags, noteToEdit }: NoteFormProps) => {
           </div>
 
           <div className="flex w-full sm:w-[40%] flex-col items-start gap-2">
-            <label htmlFor="tags">Tags</label>
+            <label
+              className="font-LilitaOne text-gray-700 dark:text-gray-50 text-lg"
+              htmlFor="tags"
+            >
+              Tags
+            </label>
             <CreatableReactSelect
-              className="w-full px-1 dark:text-gray-700 text-left"
+              placeholder="Create a tag or select from options..."
+              className="w-full  px-1 dark:text-gray-700 text-left"
               ref={reactSelectRef}
+              required={true}
               isMulti
               onCreateOption={(label) => {
                 const newTag = { label, id: uuidv4() };
@@ -105,17 +138,8 @@ const NoteForm = ({ onSubmit, onAddTag, tags, noteToEdit }: NoteFormProps) => {
             cols={50}
             rows={17}
             defaultValue={noteToEdit ? noteToEdit.body : ""}
+            required
           />
-        </div>
-        <div className="flex justify-center gap-2">
-          <Button type="submit" variant="contained" color="primary">
-            Save
-          </Button>
-          <Link to={".."} relative="path">
-            <Button color="warning" variant="outlined" type="submit">
-              Cancel
-            </Button>
-          </Link>
         </div>
       </form>
     </div>

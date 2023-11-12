@@ -24,30 +24,32 @@ const Note = ({ notes, setNotes }: NoteProps) => {
   };
 
   return (
-    <div className="noteContainer container pt-10 ">
+    <div className="noteContainer mb-36 container pt-10 ">
       <div>
         <div
           style={{
             display: "flex",
             justifyContent: "space-between",
           }}
-          className="noteHeader w-full "
+          className="noteHeader gap-2 flex-col sm:flex-row mb-4 w-full "
         >
-          <div className="">
-            <h2 className="text-xl">{note?.title}</h2>
+          <div className=" w-full sm:w-[45%]">
+            <h2 className="font-LilitaOne text-left overflow-x-clip overflow-ellipsis w-full capitalize text-xl">
+              {note?.title}
+            </h2>
           </div>
           <div
             style={{ display: "flex", alignItems: "end" }}
-            className="noteHeaderButtons gap-1"
+            className="noteHeaderButtons pr-3 gap-1"
           >
             <Link to={`/${note?.id}/note/edit`}>
-              <Button color="info" size="small" variant="text">
+              <Button color="primary" size="small" variant="outlined">
                 Edit
               </Button>
             </Link>
 
             <Button
-              variant="text"
+              variant="outlined"
               size="small"
               color="warning"
               onClick={() => deleteNote(note)}
@@ -55,13 +57,13 @@ const Note = ({ notes, setNotes }: NoteProps) => {
               Delete
             </Button>
             <Link to={"/"}>
-              <Button variant="text" size="small" color="info">
+              <Button variant="outlined" size="small" color="primary">
                 Back
               </Button>
             </Link>
           </div>
         </div>
-        <div className="noteTags border-b border-b-blue-500 pb-2 flex flex-wrap gap-1 justify-start">
+        <div className="noteTags shadow-md pb-2 flex flex-wrap gap-1 justify-start">
           {note?.tags.map((t) => {
             return (
               <Chip
@@ -82,7 +84,7 @@ const Note = ({ notes, setNotes }: NoteProps) => {
           <div className="noteTitleandTags flex justify-between py-10"></div>
           <div className="noteBody text-left overflow-clip ">
             {note && (
-              <ReactMarkDown className="text-ellipsis">
+              <ReactMarkDown className="text-ellipsis p-4">
                 {note.body}
               </ReactMarkDown>
             )}

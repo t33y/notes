@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo } from "react";
-import { Navigate, Route, Routes } from "react-router-dom";
+import { Navigate, Route, Routes, useLocation } from "react-router-dom";
 import "./App.css";
 import Newnote from "./Newnote";
 import { UseLocalStorage } from "./useLocalStorage";
@@ -7,8 +7,11 @@ import { v4 as uuidv4 } from "uuid";
 import NoteList from "./NoteList";
 import Note from "./Note";
 import Editnote from "./Editnote";
-import LightModeIcon from "@mui/icons-material/LightMode";
-import NightlightRoundOutlinedIcon from "@mui/icons-material/NightlightRoundOutlined";
+import Footer from "./Footer";
+import { AnimatePresence, motion } from "framer-motion";
+import LandingPage from "./LandingPage";
+import { ThemeSwitch } from "./ThemeSwitch";
+import Header from "./Header";
 
 export type Notes = {
   id: string;
@@ -42,34 +45,22 @@ export type Tag = {
   label: string;
 };
 
-type ThemeSwitchProps = {
-  isDarkMode: boolean | null;
-  setIsDarkMode: React.Dispatch<React.SetStateAction<boolean | null>>;
-};
-
-const ThemeSwitch = ({ isDarkMode, setIsDarkMode }: ThemeSwitchProps) => {
-  return (
-    <button
-      onClick={() => {
-        setIsDarkMode((prev) => !prev);
-        isDarkMode
-          ? document.documentElement.classList.remove("dark")
-          : document.documentElement.classList.add("dark");
-      }}
-      className="absolute top-3 right-3 z-20"
-    >
-      {isDarkMode ? <NightlightRoundOutlinedIcon /> : <LightModeIcon />}
-    </button>
-  );
-};
-
 function App() {
-  const [notes, setNotes] = UseLocalStorage<RawNote[]>("NOTES", []);
+  const [notes, setNotes] = UseLocalStorage<RawNote[]>("NOTES", [
+    {
+      id: "one",
+      title: "initiatingTitleOne",
+      body: "initiatingBodyOne",
+      tagIds: [],
+    },
+  ]);
   const [tags, setTags] = UseLocalStorage<Tag[]>("TAGS", []);
   const [isDarkMode, setIsDarkMode] = UseLocalStorage<boolean | null>(
     "DARK",
     null
   );
+
+  const location = useLocation();
 
   useEffect(() => {
     if (isDarkMode === false) return;
@@ -84,6 +75,7 @@ function App() {
   }, [isDarkMode, setIsDarkMode]);
 
   const noteWithTags = useMemo(() => {
+    if (notes[0]?.body === "initiatingBodyOne") return [];
     return notes.map((note) => {
       return {
         ...note,
@@ -95,16 +87,30 @@ function App() {
   }, [tags, notes]);
 
   const onCreateNote = ({ tags, ...data }: NoteWithTags) => {
-    setNotes((prev) => [
-      ...prev,
-      {
-        ...data,
-        id: uuidv4(),
-        tagIds: tags.map((tag) => {
-          return tag.id;
-        }),
-      },
-    ]);
+    setNotes((prev) => {
+      if (prev[0]?.body === "initiatingBodyOne") {
+        return [
+          {
+            ...data,
+            id: uuidv4(),
+            tagIds: tags.map((tag) => {
+              return tag.id;
+            }),
+          },
+        ];
+      } else {
+        return [
+          ...prev,
+          {
+            ...data,
+            id: uuidv4(),
+            tagIds: tags.map((tag) => {
+              return tag.id;
+            }),
+          },
+        ];
+      }
+    });
   };
 
   const onUpdateNote = ({ tags, id, ...data }: NoteWithTags) => {
@@ -123,7 +129,7 @@ function App() {
     });
   };
 
-  const DeleteNotes = () => {
+  const deleteNotes = () => {
     localStorage.clear();
     window.location.reload();
   };
@@ -133,53 +139,69 @@ function App() {
   };
 
   return (
-    <div className="flex bg-gray-50 min-h-screen justify-center dark:bg-gray-700 dark:text-white ">
-      <ThemeSwitch isDarkMode={isDarkMode} setIsDarkMode={setIsDarkMode} />
-      {/* <div className="bg-[#d1b79e] -z-10 blur-[29rem] h-[35%] w-[55%] absolute top-[11rem] left-10"></div>
-      <div className="bg-[#c3b4e3] -z-10 blur-[29rem] h-[40%] w-[55%] absolute top-[15rem] right-14 "></div> */}
-      <div className="App relative container flex flex-wrap flex-col content-center p-3 font-serif ">
-        <Routes>
-          <Route
-            path="/"
-            element={
-              <NoteList
-                noteWithTags={noteWithTags}
-                deleteNotes={DeleteNotes}
-                tags={tags}
-                setTags={setTags}
-              />
-            }
-          />
-          <Route
-            path="/new"
-            element={
-              <Newnote
-                onSubmit={onCreateNote}
-                onAddTag={onAddTag}
-                tags={tags}
-              />
-            }
-          />
-          <Route path="*" element={<Navigate to={"/"} />} />
-          <Route path="/:id">
-            <Route path="show" element={<h1>Show</h1>} />
+    <div className="flex flex-col bg-gray-50 min-h-screen content-center items-center flex-wrap dark:bg-gray-700 dark:text-white ">
+      {notes[0]?.body !== "initiatingBodyOne" && (
+        <Header
+          isDarkMode={isDarkMode}
+          deleteNotes={deleteNotes}
+          setIsDarkMode={setIsDarkMode}
+        />
+      )}
+      <div className="App container flex flex-wrap flex-col content-center px-1 py-8 sm:p-10 font-Poppings ">
+        <AnimatePresence mode="wait">
+          <Routes location={location} key={location.key}>
             <Route
-              path="note"
-              element={<Note notes={noteWithTags} setNotes={setNotes} />}
+              path="/"
+              element={
+                notes[0]?.body === "initiatingBodyOne" ? (
+                  <LandingPage
+                    setIsDarkMode={setIsDarkMode}
+                    isDarkMode={isDarkMode}
+                  />
+                ) : (
+                  <NoteList
+                    noteWithTags={noteWithTags}
+                    deleteNotes={deleteNotes}
+                    tags={tags}
+                    setTags={setTags}
+                  />
+                )
+              }
             />
             <Route
-              path="note/edit"
+              path="/new"
               element={
-                <Editnote
-                  onSubmit={onUpdateNote}
+                <Newnote
+                  onSubmit={onCreateNote}
                   onAddTag={onAddTag}
                   tags={tags}
-                  notes={noteWithTags}
                 />
               }
             />
-          </Route>
-        </Routes>
+            <Route path="*" element={<Navigate to={"/"} />} />
+            <Route path="/:id">
+              <Route path="show" element={<h1>Show</h1>} />
+              <Route
+                path="note"
+                element={<Note notes={noteWithTags} setNotes={setNotes} />}
+              />
+              <Route
+                path="note/edit"
+                element={
+                  <Editnote
+                    onSubmit={onUpdateNote}
+                    onAddTag={onAddTag}
+                    tags={tags}
+                    notes={noteWithTags}
+                  />
+                }
+              />
+            </Route>
+          </Routes>
+        </AnimatePresence>
+      </div>
+      <div className="justify-self-end">
+        <Footer />
       </div>
     </div>
   );
