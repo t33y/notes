@@ -50,7 +50,7 @@ const Header = ({ deleteNotes, isDarkMode, setIsDarkMode }: Props) => {
           <ThemeSwitch isDarkMode={isDarkMode} setIsDarkMode={setIsDarkMode} />
 
           <button
-            className="hover:scale-105 text-sm  hover:bg-blue-200 hover:bg-opacity-40 dark:hover:bg-gray-800 border border-blue-500 sm:text-base rounded-lg p-2 transition-all"
+            className="hover:scale-105 text-sm  hover:bg-red-200 hover:bg-opacity-40 dark:hover:bg-gray-800 border border-red-500 sm:text-base rounded-lg p-2 transition-all"
             onClick={deleteNotes}
           >
             Clear Notes
